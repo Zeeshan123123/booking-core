@@ -57,6 +57,17 @@
             <label class="control-label">{{__("Real address")}}</label>
             <input type="text" name="address" id="customPlaceAddress" class="form-control" placeholder="{{__("Real address")}}" value="{{$translation->address}}">
         </div>
+
+        <!-- <div class="form-group">
+            <label class="control-label">{{__("Location From")}}</label>
+            <input type="text" name="location_from" id="customPlaceAddress" class="form-control" placeholder="{{__("location from")}}" value="{{$translation->location_from}}">
+        </div>
+
+        <div class="form-group">
+            <label class="control-label">{{__("Location To")}}</label>
+            <input type="text" name="location_to" id="customPlaceAddress" class="form-control" placeholder="{{__("location to")}}" value="{{$translation->location_to}}">
+        </div> -->
+
         @if(is_default_lang())
             <div class="form-group">
                 <label class="control-label">{{__("The geographic coordinate")}}</label>
