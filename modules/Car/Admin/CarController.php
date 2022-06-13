@@ -13,6 +13,7 @@ use Modules\AdminController;
 use Modules\Car\Models\Car;
 use Modules\Car\Models\CarTerm;
 use Modules\Car\Models\CarTranslation;
+use Modules\Car\Models\CarPrice;
 use Modules\Core\Events\CreatedServicesEvent;
 use Modules\Core\Events\UpdatedServiceEvent;
 use Modules\Core\Models\Attributes;
@@ -23,6 +24,7 @@ class CarController extends AdminController
     protected $car;
     protected $car_translation;
     protected $car_term;
+    protected $car_price;
     protected $attributes;
     protected $location;
 
@@ -35,6 +37,7 @@ class CarController extends AdminController
         $this->car_term = CarTerm::class;
         $this->attributes = Attributes::class;
         $this->location = Location::class;
+        $this->car_price = CarPrice::class;
     }
 
     public function callAction($method, $parameters)
@@ -383,5 +386,175 @@ class CarController extends AdminController
         return $this->sendSuccess([
             'results' => $res
         ]);
+    }
+
+
+    public function prices(Request $request)
+    {
+        //dd("com");
+        $this->checkPermission('car_view');
+        $query = $this->car_price::orderBy('ranges', 'asc');
+        // $query->orderBy('id', 'desc');
+
+        if (!empty($s = $request->input('s'))) {
+            $query->where('id', 'LIKE', '%' . $s . '%')
+                  ->orWhere('distance_from', 'LIKE', '%' . $s . '%')
+                  ->orWhere('distance_to', 'LIKE', '%' . $s . '%')
+                  ->orWhere('one_way_trip_price', 'LIKE', '%' . $s . '%')
+                  ->orWhere('one_way_trip_discount', 'LIKE', '%' . $s . '%')
+                  ->orWhere('round_trip_price', 'LIKE', '%' . $s . '%')
+                  ->orWhere('round_trip_discount', 'LIKE', '%' . $s . '%');
+        }
+        
+        if ($this->hasPermission('car_manage_others')) {
+            if (!empty($author = $request->input('vendor_id'))) {
+                $query->where('create_user', $author);
+            }
+        } else {
+            $query->where('create_user', Auth::id());
+        }
+        $data = [
+            'rows'              => $query->paginate(20),
+            'car_manage_others' => $this->hasPermission('car_manage_others'),
+            'recovery'          => 1,
+            'breadcrumbs'       => [
+                [
+                    'name' => __('Cars'),
+                    'url'  => route('car.admin.index')
+                ],
+                [
+                    'name'  => __('Car Prices'),
+                    'class' => 'active'
+                ],
+            ],
+            'page_title'        => __("Car Prices Management")
+        ];
+        
+        return view('Car::admin.prices.index', $data);
+    }
+
+
+    public function createPrices(Request $request)
+    {
+        $this->checkPermission('car_create');
+        $row = new $this->car();
+        $row->fill([
+            'status' => 'publish'
+        ]);
+        $data = [
+            'row'          => $row,
+            'attributes'   => $this->attributes::where('service', 'car')->get(),
+            'car_location' => $this->location::where('status', 'publish')->get()->toTree(),
+            'translation'  => new $this->car_translation(),
+            'breadcrumbs'  => [
+                [
+                    'name' => __('Car Prices'),
+                    'url'  => route('car.admin.prices')
+                ],
+                [
+                    'name'  => __('Add Prices'),
+                    'class' => 'active'
+                ],
+            ],
+            'page_title'   => __("Add new Prices")
+        ];
+        return view('Car::admin.prices.detail', $data);
+    }
+
+
+    public function editPrices(Request $request, $id)
+    {
+        $this->checkPermission('car_update');
+        $row = $this->car_price::find($id);
+        if (empty($row)) {
+            return redirect(route('car.admin.prices'));
+        }
+        
+        $data = [
+            'row'               => $row,
+            'enable_multi_lang' => true,
+            'breadcrumbs'       => [
+                [
+                    'name' => __('Car Prices'),
+                    'url'  => route('car.admin.prices')
+                ],
+                [
+                    'name'  => __('Edit Prices'),
+                    'class' => 'active'
+                ],
+            ],
+            'page_title'        => __("Edit Prices")
+        ];
+        return view('Car::admin.prices.detail', $data);
+    }
+
+
+
+    public function storePrices(Request $request, $id)
+    {
+        if ($id > 0) {
+            $this->checkPermission('car_update');
+            $row = $this->car_price::find($id);
+            if (empty($row)) {
+                return redirect(route('car.admin.prices'));
+            }
+        } 
+
+        
+        if ($id > 0) {
+
+            $row->ranges   = $request->input('ranges') ?? 0;
+            $row->distance_from   = $request->input('distance_from') ?? 0;
+            $row->distance_to = $request->input('distance_to') ?? 0;
+            $row->one_way_trip_price = $request->input('one_way_trip_price') ?? 0;
+            $row->one_way_trip_discount = $request->input('one_way_trip_discount') ?? 0;
+            $row->round_trip_price = $request->input('round_trip_price') ?? 0;
+            $row->round_trip_discount = $request->input('round_trip_discount') ?? 0;
+            $row->updated_at = \Carbon\Carbon::now();
+            
+            $row->update();
+
+            $row['title'] = 'Taxi Prices';
+            event(new UpdatedServiceEvent($row));
+            return back()->with('success', __('Prices updated'));
+        } else {
+            $row = $this->car_price::create([
+                'ranges'   => $request->input('ranges') ?? 0,
+                'distance_from'   => $request->input('distance_from') ?? 0,
+                'distance_to' => $request->input('distance_to') ?? 0,
+                'one_way_trip_price' => $request->input('one_way_trip_price') ?? 0,
+                'one_way_trip_discount' => $request->input('one_way_trip_discount') ?? 0,
+                'round_trip_price' => $request->input('round_trip_price') ?? 0,
+                'round_trip_discount' => $request->input('round_trip_discount') ?? 0,
+                'created_at' => \Carbon\Carbon::now(),
+                'updated_at' => \Carbon\Carbon::now(),
+            ]);
+
+            $row['title'] = 'Taxi Prices';
+            event(new CreatedServicesEvent($row));
+            return redirect(route('car.admin.prices.edit', $row->id))->with('success', __('Prices created'));
+        }
+        
+    }
+
+
+    public function removePrices($id)
+    {
+        if ($id > 0) {
+            $this->checkPermission('car_update');
+            $row = $this->car_price::find($id);
+
+            if (!empty($row)) {
+                $row->delete();
+
+                $row['title'] = 'Taxi Prices';
+                
+                event(new CreatedServicesEvent($row));
+                return redirect(route('car.admin.prices', $row->id))->with('success', __('Prices deleted'));
+            }
+            else {
+                return redirect(route('car.admin.prices'))->with('success', __('Data not found!'));
+            }
+        } 
     }
 }
