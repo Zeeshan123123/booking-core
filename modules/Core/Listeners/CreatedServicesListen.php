@@ -11,7 +11,7 @@
         public function handle(CreatedServicesEvent $event)
         {
             $services = $event->services;
-
+            
             $data = [
                 'id' =>  $services->id,
                 'event'=>'CreatedServicesEvent',
