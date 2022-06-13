@@ -29,10 +29,57 @@ class CarController extends Controller
     }
     public function index(Request $request)
     {
+        $onwayTrip = '';
+        $roundTrip = '';
+        $distance = $this->distance(32.1014067,74.8799518, 32.2625241, 74.6576091, 'K' );
+        // dd($distance);
+        if ($distance >= 0.01 && $distance <= 15.00) {
+            $onwayTrip = 40;
+            $roundTrip = 80;
+        }else if ( $distance >= 15.01 && $distance <= 40.00 ){
+            // dd('hereere');
+            $onwayTrip = 70;
+            $roundTrip = 140;
+        }else if ( $distance >= 40.01 && $distance <= 60.00 ){
+
+            $onwayTrip = 80;
+            $roundTrip = 160;
+        }else if ( $distance >= 60.10 && $distance <= 65.00 ){
+
+            $onwayTrip = 160;
+            $roundTrip = 320;
+        }else if ( $distance >= 66.00 && $distance <= 70.00 ){
+
+            $onwayTrip = 100;
+            $roundTrip = 200;
+        }else if ( $distance >= 70.01 && $distance <= 90.00 ){
+
+            $onwayTrip = 110;
+            $roundTrip = 220;
+        }else if ( $distance >= 90.01 && $distance <= 99.00 ){
+
+            $onwayTrip = 120;
+            $roundTrip = 240;
+        }else if ( $distance >= 99.01 && $distance <= 110.00 ){
+
+            $onwayTrip = 200;
+            $roundTrip = 400;
+        }else if ( $distance >= 110.01 && $distance <= 120.00 ){
+
+            $onwayTrip = 240;
+            $roundTrip = 480;
+        }else if ( $distance >= 120.01 && $distance <= 170.00 ){
+
+            $onwayTrip = 260;
+            $roundTrip = 520;
+        }
+
+
 
         $is_ajax = $request->query('_ajax');
         $list = call_user_func([$this->carClass,'search'],$request);
         $markers = [];
+
         if (!empty($list)) {
             foreach ($list as $row) {
                 $markers[] = [
@@ -46,6 +93,7 @@ class CarController extends Controller
                 ];
             }
         }
+
         $limit_location = 15;
         if( empty(setting_item("car_location_search_style")) or setting_item("car_location_search_style") == "normal" ){
             $limit_location = 1000;
@@ -63,6 +111,8 @@ class CarController extends Controller
             $layout = $request->query('_layout');
         }
         if ($is_ajax) {
+        // dd('if here');
+
             return $this->sendSuccess([
                 'html'    => view('Car::frontend.layouts.search-map.list-item', $data)->render(),
                 "markers" => $data['markers']
@@ -75,11 +125,19 @@ class CarController extends Controller
             $data['html_class'] = 'full-page';
             return view('Car::frontend.search-map', $data);
         }
+
+        $data['onwayTrip'] = $onwayTrip; 
+        $data['roundTrip'] = $roundTrip; 
+
+        // dd($data);
+
+        // dd('here');
         return view('Car::frontend.search', $data);
     }
 
     public function detail(Request $request, $slug)
     {
+
         $row = $this->carClass::where('slug', $slug)->with(['location','translations','hasWishList'])->first();;
         if ( empty($row) or !$row->hasPermissionDetailView()) {
             return redirect('/');
@@ -98,9 +156,37 @@ class CarController extends Controller
             'booking_data' => $row->getBookingData(),
             'review_list'  => $review_list,
             'seo_meta'  => $row->getSeoMetaWithTranslation(app()->getLocale(),$translation),
-            'body_class'=>'is_single'
+            'body_class'=>'is_single',
+            'onwayTrip'=>$onwayTrip,
+            'roundTrip'=>$roundTrip
         ];
         $this->setActiveMenu($row);
         return view('Car::frontend.detail', $data);
     }
+
+
+
+    public function distance($lat1, $lon1, $lat2, $lon2, $unit) {
+
+      $theta = $lon1 - $lon2;
+      $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+      $dist = acos($dist);
+      $dist = rad2deg($dist);
+      $miles = $dist * 60 * 1.1515;
+      $unit = strtoupper($unit);
+
+      if ($unit == "K") {
+          return round($miles * 1.609344);
+      } else if ($unit == "N") {
+          return round($miles * 0.8684);
+      } else {
+          return round($miles);
+      }
+    }
+
+    // echo distance(32.9697, -96.80322, 29.46786, -98.53506, "M") . " Miles<br>";
+    // echo distance(32.9697, -96.80322, 29.46786, -98.53506, "K") . " Kilometers<br>";
+    // echo distance(32.9697, -96.80322, 29.46786, -98.53506, "N") . " Nautical Miles<br>";
+
+
 }
