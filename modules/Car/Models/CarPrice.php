@@ -13,6 +13,7 @@ class CarPrice extends Model
     protected $table = 'car_prices';
 
     protected $fillable = [
+        'car_id',
         'ranges',
         'distance_from',
         'distance_to',
@@ -25,8 +26,8 @@ class CarPrice extends Model
     ];
 
     
-    // public function getRecordRoot(){
-    //     return $this->belongsTo(Car::class,'car_id');
-    // }
+    public function getRecordRoot(){
+        return $this->belongsTo(Car::class,'car_id');
+    }
 
 }

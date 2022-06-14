@@ -41,7 +41,7 @@
 
             <div class="col-left dropdown">
                 <form method="get" action="{{ !empty($rows) ? route('car.admin.prices') : '' }}" class="filter-form filter-form-right d-flex justify-content-end flex-column flex-sm-row" role="search">
-                    @if(!empty($rows) and $car_manage_others)
+                    @if(!empty($rows))
                         <input type="text" name="s" value="{{ Request()->s }}" placeholder="{{__('Search by name')}}" class="form-control">
 
                         {{-- 
@@ -74,6 +74,7 @@
                         <thead>
                         <tr>
                             <th width="50px"> {{ __('Range #') }}</th>
+                            <th width="50px"> {{ __('Car') }}</th>
                             <th width="90px"> {{ __('From (Km)') }}</th>
                             <th width="80px"> {{ __('To (Km)') }}</th>
                             <th width="150px"> {{ __('Oneway trip (Price)') }}</th>
@@ -88,6 +89,7 @@
                             @foreach($rows as $row)
                                 <tr>
                                     <td>{{$row->ranges ?? ''}}</td>
+                                    <td>{{$row->getRecordRoot->title ?? ''}}</td>
                                     <td>{{$row->distance_from ?? ''}}</td>
                                     <td>{{$row->distance_to ?? ''}}</td>
                                     <td>{{$row->one_way_trip_price ?? ''}}</td>

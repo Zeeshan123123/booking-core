@@ -15,6 +15,7 @@ Route::post('/prices/store/{id}','CarController@storePrices')->name('car.admin.p
 Route::get('/prices/edit/{id}','CarController@editPrices')->name('car.admin.prices.edit');
 Route::get('/prices/remove/{id}','CarController@removePrices')->name('car.admin.prices.remove');
 
+
 Route::group(['prefix'=>'attribute'],function (){
     Route::get('/','AttributeController@index')->name('car.admin.attribute.index');
     Route::get('/edit/{id}','AttributeController@edit')->name('car.admin.attribute.edit');

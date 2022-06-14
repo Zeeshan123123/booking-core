@@ -12,6 +12,7 @@ use Modules\Tour\Models\TourTerm;
 use Modules\Tour\Models\Tour;
 use Modules\Tour\Models\TourCategory;
 use Modules\Tour\Models\TourTranslation;
+use Modules\Tour\Models\TourPrice;
 use Modules\Location\Models\Location;
 
 class TourController extends AdminController
@@ -20,6 +21,7 @@ class TourController extends AdminController
     protected $tourTranslationClass;
     protected $tourCategoryClass;
     protected $tourTermClass;
+    protected $tourPriceModel;
     protected $attributesClass;
     protected $locationClass;
     /**
@@ -35,6 +37,7 @@ class TourController extends AdminController
         $this->tourTranslationClass = TourTranslation::class;
         $this->tourCategoryClass = TourCategory::class;
         $this->tourTermClass = TourTerm::class;
+        $this->tourPriceModel = TourPrice::class;
         $this->attributesClass = Attributes::class;
         $this->locationClass = Location::class;
         $this->locationCategoryClass = LocationCategory::class;
@@ -364,5 +367,215 @@ class TourController extends AdminController
         return $this->sendSuccess([
             'results' => $res
         ]);
+    }
+
+
+    public function prices(Request $request)
+    {
+        $this->checkPermission('car_view');
+        $query = $this->tourPriceModel::orderBy('ranges', 'asc');
+        // $query->orderBy('id', 'desc');
+
+        if (!empty($s = $request->input('s'))) {
+            $query->where('ranges', 'LIKE', '%' . $s . '%')
+                  ->orWhere('distance_from', 'LIKE', '%' . $s . '%')
+                  ->orWhere('distance_to', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_1_price', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_1_add', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_1_discount', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_2_price', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_2_add', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_2_discount', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_3_price', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_3_add', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_3_discount', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_4_price', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_4_add', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_4_discount', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_5_price', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_5_add', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_5_discount', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_6_price', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_6_add', 'LIKE', '%' . $s . '%')
+                  ->orWhere('range_6_discount', 'LIKE', '%' . $s . '%');
+        }
+        
+        if ($this->hasPermission('car_manage_others')) {
+            if (!empty($author = $request->input('vendor_id'))) {
+                $query->where('create_user', $author);
+            }
+        } else {
+            $query->where('create_user', Auth::id());
+        }
+        $data = [
+            'rows'              => $query->paginate(20),
+            'car_manage_others' => $this->hasPermission('car_manage_others'),
+            'recovery'          => 1,
+            'breadcrumbs'       => [
+                [
+                    'name' => __('Tours'),
+                    'url'  => route('tour.admin.index')
+                ],
+                [
+                    'name'  => __('Tours Prices'),
+                    'class' => 'active'
+                ],
+            ],
+            'page_title'        => __("Tours Prices Management")
+        ];
+        
+        return view('Tour::admin.prices.index', $data);
+    }
+
+
+    public function createPrices(Request $request)
+    {
+        $this->checkPermission('tour_create');
+        $row = new Tour();
+        $data = [
+            'row'          => $row,
+            'attributes'        => $this->attributesClass::where('service', 'tour')->get(),
+            'tour_category'     => $this->tourCategoryClass::where('status', 'publish')->get()->toTree(),
+            'tour_location'     => $this->locationClass::where('status', 'publish')->get()->toTree(),
+            'location_category' => $this->locationCategoryClass::where("status", "publish")->get(),
+            'translation'       => new $this->tourTranslationClass(),
+            'breadcrumbs'  => [
+                [
+                    'name' => __('Tour Prices'),
+                    'url'  => route('tour.admin.prices')
+                ],
+                [
+                    'name'  => __('Add Prices'),
+                    'class' => 'active'
+                ],
+            ],
+            'page_title'   => __("Add new Prices")
+        ];
+        return view('Tour::admin.prices.detail', $data);
+    }
+
+
+    public function editPrices(Request $request, $id)
+    {
+        
+        $this->checkPermission('car_update');
+        $row = $this->tourPriceModel::find($id);
+        if (empty($row)) {
+            return redirect(route('tour.admin.prices'));
+        }
+        
+        $data = [
+            'row'               => $row,
+            'enable_multi_lang' => true,
+            'breadcrumbs'       => [
+                [
+                    'name' => __('Tour Prices'),
+                    'url'  => route('tour.admin.prices')
+                ],
+                [
+                    'name'  => __('Edit Prices'),
+                    'class' => 'active'
+                ],
+            ],
+            'page_title'        => __("Edit Prices")
+        ];
+        return view('Tour::admin.prices.detail', $data);
+    }
+
+
+
+    public function storePrices(Request $request, $id)
+    {
+        if ($id > 0) {
+            $this->checkPermission('tour_update');
+            $row = $this->tourPriceModel::find($id);
+            if (empty($row)) {
+                return redirect(route('car.admin.prices'));
+            }
+        } 
+        
+        if ($id > 0) {
+
+            $row->ranges   = $request->input('ranges') ?? 0;
+            $row->distance_from   = $request->input('distance_from') ?? 0;
+            $row->distance_to = $request->input('distance_to') ?? 0;
+            $row->range_1_price = $request->input('range_1_price') ?? 0;
+            $row->range_1_add = $request->input('range_1_add') ?? 0;
+            $row->range_1_discount = $request->input('range_1_discount') ?? 0;
+            $row->range_2_price = $request->input('range_2_price') ?? 0;
+            $row->range_2_add = $request->input('range_2_add') ?? 0;
+            $row->range_2_discount = $request->input('range_2_discount') ?? 0;
+            $row->range_3_price = $request->input('range_3_price') ?? 0;
+            $row->range_3_add = $request->input('range_3_add') ?? 0;
+            $row->range_3_discount = $request->input('range_3_discount') ?? 0;
+            $row->range_4_price = $request->input('range_4_price') ?? 0;
+            $row->range_4_add = $request->input('range_4_add') ?? 0;
+            $row->range_4_discount = $request->input('range_4_discount') ?? 0;
+            $row->range_5_price = $request->input('range_5_price') ?? 0;
+            $row->range_5_add = $request->input('range_5_add') ?? 0;
+            $row->range_5_discount = $request->input('range_5_discount') ?? 0;
+            $row->range_6_price = $request->input('range_6_price') ?? 0;
+            $row->range_6_add = $request->input('range_6_add') ?? 0;
+            $row->range_6_discount = $request->input('range_6_discount') ?? 0;
+            $row->updated_at = \Carbon\Carbon::now();
+            
+            $row->update();
+
+            $row['title'] = 'Taxi Prices';
+            event(new UpdatedServiceEvent($row));
+            return back()->with('success', __('Prices updated'));
+        } else {
+            $row = $this->tourPriceModel::create([
+                'ranges'   => $request->input('ranges') ?? 0,
+                'distance_from'   => $request->input('distance_from') ?? 0,
+                'distance_to' => $request->input('distance_to') ?? 0,
+                'range_1_price' => $request->input('range_1_price') ?? 0,
+                'range_1_add' => $request->input('range_1_add') ?? 0,
+                'range_1_discount' => $request->input('range_1_discount') ?? 0,
+                'range_2_price' => $request->input('range_2_price') ?? 0,
+                'range_2_add' => $request->input('range_2_add') ?? 0,
+                'range_2_discount' => $request->input('range_2_discount') ?? 0,
+                'range_3_price' => $request->input('range_3_price') ?? 0,
+                'range_3_add' => $request->input('range_3_add') ?? 0,
+                'range_3_discount' => $request->input('range_3_discount') ?? 0,
+                'range_4_price' => $request->input('range_4_price') ?? 0,
+                'range_4_add' => $request->input('range_4_add') ?? 0,
+                'range_4_discount' => $request->input('range_4_discount') ?? 0,
+                'range_5_price' => $request->input('range_5_price') ?? 0,
+                'range_5_add' => $request->input('range_5_add') ?? 0,
+                'range_5_discount' => $request->input('range_5_discount') ?? 0,
+                'range_6_price' => $request->input('range_6_price') ?? 0,
+                'range_6_add' => $request->input('range_6_add') ?? 0,
+                'range_6_discount' => $request->input('range_6_discount') ?? 0,
+                'created_at' => \Carbon\Carbon::now(),
+                'updated_at' => \Carbon\Carbon::now(),
+            ]);
+
+            $row['title'] = 'Tour Prices';
+            event(new CreatedServicesEvent($row));
+            return redirect(route('tour.admin.prices.edit', $row->id))->with('success', __('Prices created'));
+        }
+        
+    }
+
+
+    public function removePrices($id)
+    {
+        if ($id > 0) {
+            $this->checkPermission('tour_update');
+            $row = $this->tourPriceModel::find($id);
+
+            if (!empty($row)) {
+                $row->delete();
+
+                $row['title'] = 'Tour Prices';
+                
+                // event(new CreatedServicesEvent($row));
+                return redirect(route('tour.admin.prices', $row->id))->with('success', __('Prices deleted'));
+            }
+            else {
+                return redirect(route('tour.admin.prices'))->with('success', __('Data not found!'));
+            }
+        } 
     }
 }

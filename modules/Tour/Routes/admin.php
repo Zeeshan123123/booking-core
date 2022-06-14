@@ -16,6 +16,14 @@ Route::post('/category/store/{id}','CategoryController@store')->name('tour.admin
 Route::get('/category/getForSelect2','CategoryController@getForSelect2')->name('tour.admin.category.category.getForSelect2');
 Route::post('/category/bulkEdit','CategoryController@bulkEdit')->name('tour.admin.category.bulkEdit');
 
+// tour prices routes
+Route::get('/prices','TourController@prices')->name('tour.admin.prices');
+Route::get('/prices/create','TourController@createPrices')->name('tour.admin.prices.create');
+Route::post('/prices/store/{id}','TourController@storePrices')->name('tour.admin.prices.store');
+Route::get('/prices/edit/{id}','TourController@editPrices')->name('tour.admin.prices.edit');
+Route::get('/prices/remove/{id}','TourController@removePrices')->name('tour.admin.prices.remove');
+
+
 Route::group(['prefix'=>'attribute'],function(){
     Route::get('/','AttributeController@index')->name('tour.admin.attribute.index');
     Route::get('/edit/{id}','AttributeController@edit')->name('tour.admin.attribute.edit');

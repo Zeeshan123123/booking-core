@@ -397,7 +397,7 @@ class CarController extends AdminController
         // $query->orderBy('id', 'desc');
 
         if (!empty($s = $request->input('s'))) {
-            $query->where('id', 'LIKE', '%' . $s . '%')
+            $query->where('ranges', 'LIKE', '%' . $s . '%')
                   ->orWhere('distance_from', 'LIKE', '%' . $s . '%')
                   ->orWhere('distance_to', 'LIKE', '%' . $s . '%')
                   ->orWhere('one_way_trip_price', 'LIKE', '%' . $s . '%')
@@ -503,6 +503,7 @@ class CarController extends AdminController
         
         if ($id > 0) {
 
+            $row->car_id   = $request->input('car') ?? 0;
             $row->ranges   = $request->input('ranges') ?? 0;
             $row->distance_from   = $request->input('distance_from') ?? 0;
             $row->distance_to = $request->input('distance_to') ?? 0;
@@ -519,6 +520,7 @@ class CarController extends AdminController
             return back()->with('success', __('Prices updated'));
         } else {
             $row = $this->car_price::create([
+                'car_id'   => $request->input('car') ?? 0,
                 'ranges'   => $request->input('ranges') ?? 0,
                 'distance_from'   => $request->input('distance_from') ?? 0,
                 'distance_to' => $request->input('distance_to') ?? 0,
@@ -549,7 +551,7 @@ class CarController extends AdminController
 
                 $row['title'] = 'Taxi Prices';
                 
-                event(new CreatedServicesEvent($row));
+                // event(new CreatedServicesEvent($row));
                 return redirect(route('car.admin.prices', $row->id))->with('success', __('Prices deleted'));
             }
             else {

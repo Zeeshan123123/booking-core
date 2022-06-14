@@ -81,6 +81,11 @@ class ModuleProvider extends ModuleServiceProvider
                         'title'      => __('Recovery'),
                         'permission' => 'tour_view',
                     ],
+                    'prices'=>[
+                        'url'        => route('tour.admin.prices'),
+                        'title'      => __('Tour Prices'),
+                        'permission' => 'tour_view',
+                    ],
                 ]
             ];
         }

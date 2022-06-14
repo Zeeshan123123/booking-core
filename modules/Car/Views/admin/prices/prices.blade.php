@@ -1,10 +1,25 @@
-<?php  $languages = \Modules\Language\Models\Language::getActive();  ?>
+<?php  
+$languages = \Modules\Language\Models\Language::getActive();
+$cars = \Modules\Car\Models\Car::get();
+?>
 @if(is_default_lang())
 <div class="panel">
     <div class="panel-title"><strong>{{__("Distance")}}</strong></div>
     <div class="panel-body">
         @if(is_default_lang())
             <div class="row">
+
+                <div class="col-lg-12">
+                    <div class="form-group">    
+                        <label class="control-label">{{__("Car")}}</label>
+                        <select step="any" name="car" class="form-control">
+                            @foreach($cars as $car)
+                                <option value="{{$car->id}}" {{ ($row->car_id == $car->id)? 'selected':'' }}>{{$car->title}}</option>
+                            @endforeach
+                        </select>
+
+                    </div>
+                </div>
 
                 <div class="col-lg-12">
                     <div class="form-group">    
