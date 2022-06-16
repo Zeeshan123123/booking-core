@@ -10,12 +10,12 @@
         <div class="bravo_content">
             <div class="container">
                 <div class="row">
-                    <div class="col-md-12 col-lg-9">
+                    <div class="col-md-12 col-lg-8">
                         @php $review_score = $row->review_data @endphp
                         @include('Tour::frontend.layouts.details.tour-detail')
                         @include('Tour::frontend.layouts.details.tour-review')
                     </div>
-                    <div class="col-md-12 col-lg-3">
+                    <div class="col-md-12 col-lg-4">
                         {{-- @include('Tour::frontend.layouts.details.vendor') --}}
                         @include('Tour::frontend.layouts.details.tour-form-book')
                         @include('Tour::frontend.layouts.details.open-hours')

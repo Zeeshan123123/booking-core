@@ -31,6 +31,7 @@
             enquiry_email:"",
             enquiry_phone:"",
             enquiry_note:"",
+            start_time:"",
         },
         watch:{
             extra_price:{
@@ -312,7 +313,9 @@
                 return true;
             },
             addPersonType(type){
+
                 type.number = parseInt(type.number);
+                
                 if(type.number < parseInt(type.max) || !type.max) type.number +=1;
             },
             minusPersonType(type){

@@ -191,6 +191,9 @@ class CarController extends Controller
         return view('Car::frontend.search', $data);
     }
 
+
+    /*
+    // commented new updated code
     public function detail(Request $request, $slug)
     {
 
@@ -219,7 +222,34 @@ class CarController extends Controller
         $this->setActiveMenu($row);
         return view('Car::frontend.detail', $data);
     }
+    */
+    
 
+    public function detail(Request $request, $slug)
+    {
+        $row = $this->carClass::where('slug', $slug)->with(['location','translations','hasWishList'])->first();;
+        if ( empty($row) or !$row->hasPermissionDetailView()) {
+            return redirect('/');
+        }
+        $translation = $row->translateOrOrigin(app()->getLocale());
+        $car_related = [];
+        $location_id = $row->location_id;
+        if (!empty($location_id)) {
+            $car_related = $this->carClass::where('location_id', $location_id)->where("status", "publish")->take(4)->whereNotIn('id', [$row->id])->with(['location','translations','hasWishList'])->get();
+        }
+        $review_list = $row->getReviewList();
+        $data = [
+            'row'          => $row,
+            'translation'       => $translation,
+            'car_related' => $car_related,
+            'booking_data' => $row->getBookingData(),
+            'review_list'  => $review_list,
+            'seo_meta'  => $row->getSeoMetaWithTranslation(app()->getLocale(),$translation),
+            'body_class'=>'is_single'
+        ];
+        $this->setActiveMenu($row);
+        return view('Car::frontend.detail', $data);
+    }
 
 
     public function distance($lat1, $lon1, $lat2, $lon2, $unit) {
