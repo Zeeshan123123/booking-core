@@ -30,6 +30,7 @@
             enquiry_email:"",
             enquiry_phone:"",
             enquiry_note:"",
+            persons:"",
         },
         watch:{
             extra_price:{

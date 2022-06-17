@@ -32,6 +32,7 @@
             enquiry_phone:"",
             enquiry_note:"",
             start_time:"",
+            persons:"",
         },
         watch:{
             extra_price:{

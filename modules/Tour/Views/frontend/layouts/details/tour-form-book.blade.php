@@ -1,13 +1,18 @@
 <style>
     .cus-style-pickup-date {
-        width: 38%; 
-        padding-left: 1.5%; 
-        padding-top: 1%;
-        margin-left: 3%;
+        width: 47%; 
+        /*padding-left: 1.5%; */
+        /*padding-top: 1%;*/
+        margin-left: 4%;
+    }
+
+    .cus-style-persons {
+        width: 47%; 
+        margin-left: 4%;
     }
 
     .cus-style-pickup-time {
-        width: 54.2%;
+        width: 45.2%;
     }
 
     button:disabled,
@@ -17,11 +22,95 @@
       color: #666666;
     }
 
-    .inline {
-   width: 50%;
-}
-</style>
+    .cus-font {
+        font-size: 13px !important;
+        color: #5e6d77 !important;
+        margin-top: 1% !important;
+    }
 
+    .cus-font-price {
+        font-size: 20px !important;
+        color: #5e6d77 !important;
+        margin-left: 6px !important;
+    }
+
+    .cus-style-total {
+        padding: 16px 125px !important;
+    }
+
+    #pac-input::placeholder { 
+        font-size: 16px;
+        color: #1a2b48;
+        font-weight: 500;
+    }
+
+    .bg-focus {
+        background-color: #e7e5e5 !important;
+    }
+
+    .cus-label {
+        font-size: 13px !important;
+        color: black !important;
+        font-weight: 300 !important;
+    }
+
+    .cus-pickup-label {
+        font-size: 14px !important;
+        color: black !important;
+        font-weight: 300 !important;
+    }
+
+    .search-box,.close-icon,.search-wrapper {
+        position: relative;
+        padding: 10px;
+    }
+    .search-wrapper {
+        width: 500px;
+        margin-top: -14px;
+        margin-bottom: -15px;
+    }
+    .search-box {
+        width: 59%;
+        border: 1px solid #ccc;
+      outline: 0;
+    }
+    .search-box:focus {
+        box-shadow: 0 0 15px 5px #b0e0ee;
+        border: 2px solid #bebede;
+    }
+    .close-icon {
+        border:1px solid transparent;
+        background-color: transparent;
+        display: inline-block;
+        vertical-align: middle;
+        outline: 0;
+        cursor: pointer;
+    }
+    .close-icon:after {
+        content: "X";
+        display: block;
+        width: 15px;
+        height: 15px;
+        position: absolute;
+        /*background-color: #FA9595;*/
+        z-index:1;
+        right: 35px;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+        /*padding: 2px;*/
+        border-radius: 50%;
+        text-align: center;
+        color: #212529;
+        font-weight: normal;
+        font-size: 12px;
+        box-shadow: 0 0 2px #000000;
+        cursor: pointer;
+    }
+    .search-box:not(:valid) ~ .close-icon {
+        display: none;
+    }
+</style>
 
 <div class="bravo_single_book_wrap @if(setting_item('tour_enable_inbox')) has-vendor-box @endif">
     <div class="bravo_single_book">
@@ -57,20 +146,34 @@
                     
 
                     <div class="form-group form-guest-search">
+                        <!-- 
                         <div class="guest-wrapper d-flex justify-content-between align-items-center">
                             <div class="flex-grow-1">
                                 <label>{{ __('Enter Your Pickup Location') }}</label>
                             </div>
-                            
-                        </div>
+                        </div> 
+                        -->
 
+                        <!-- d-flex -->
+                        <div class="guest-wrapper justify-content-between align-items-center">
+                                
+                                
+                                
 
-                        <div class="guest-wrapper d-flex justify-content-between align-items-center">
-                            
-                                <div class="bravo_form_search_map">
-                                    <div class="g-map-place">
-                                        <input type="text" style="height: 25px" name="location" id="pac-input" placeholder="{{__("Pickup location?")}}" value="" class="form-control border-0 pickup-location">
+                                <div class="form-floating">
+                                    <!-- <input type="text" class="form-control cus-pickup" id="floatingInput" placeholder="Enter Your Pickup Location" style="height: 45px;">
+                                    <label for="floatingInput " style="font-size: 14px !important; color: black !important; font-weight: 300 !important;">
+                                      {{__("Enter Your Pickup Location")}}
+                                    </label> -->
+
+                                    <div class="search-wrapper">
+                                        <form>
+                                        <input type="text" name="focus" required class="search-box" placeholder="Enter Your Pickup Location" />
+                                            <button class="close-icon" type="reset"></button>
+                                        </form>
                                     </div>
+
+
                                 </div>
                             
                         </div>
@@ -79,180 +182,72 @@
 
 
                     <div class="row">
-                        <div class="form-group form-date-field form-date-search clearfix cus-style-pickup-date" data-format="{{get_moment_date_format()}}">
-                            <div class="date-wrapper clearfix" @click="openStartDate">
-                                <div class="check-in-wrapper">
-                                    {{-- <label>{{__("Start Date")}}</label> --}}
-                                    <label>{{__("Pickup Date")}}</label>
-                                    <div class="render check-in-render">@{{start_date_html}}</div>
-                                </div>
-                                <i class="fa fa-angle-down arrow"></i>
+                        <!-- data-format="{{get_moment_date_format()}}" -->
+                        <div class="form-group form-date-field form-date-search clearfix cus-style-pickup-date" >
+                            <div class="form-floating">
+                              <input type="date" class="form-control" id="pickupInput" placeholder="Pickup Date">
+                              <label for="pickupInput">{{__("Pickup Date")}}</label>
                             </div>
-                            <input type="text" class="start_date" ref="start_date" style="height: 1px; visibility: hidden">
                         </div>
+                        <div class="form-group cus-style-pickup-time">
+                            
 
-                        <div class="form-group form-guest-search cus-style-pickup-time">
-                            <div class="guest-wrapper d-flex justify-content-between align-items-center">
+                            <div class="form-floating">
+                              <input type="time" class="form-control" id="floatingInput" placeholder="Enter Your Pickup Location">
+                              <label for="floatingInput">{{__("Pickup Time")}}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+
+                    <div class="row" style="margin-top: -5px;">
+                        <div class="form-group form-guest-search cus-style-persons" style="padding: 0px 20px;">
+                            <!-- d-flex -->
+                            <div class="guest-wrapper justify-content-between align-items-center" style="margin-left: -6%;">
                                 <div class="flex-grow-1">
-                                    <label>{{__("Pickup Time")}}</label>
+                                    <label class="cus-label">{{__("Persons")}}</label>
                                 </div>
                                 <div class="flex-shrink-0">
                                     <div class="input-number-group">
-                                        <select v-model="start_time" class="form-control" @change="startTimeChange()">
-                                            @for ( $i = 0 ; $i <= 23 ; $i++)
-                                                <option value="{{ sprintf("%02d", $i) }}:00">{{ sprintf("%02d", $i) }} : 00</option>
-                                                <option value="{{ sprintf("%02d", $i) }}:30">{{ sprintf("%02d", $i) }} : 30</option>
+                                        <select v-model="persons" class="form-control" @change="startTimeChange()">
+                                            @for ( $i = 0 ; $i <= 30 ; $i++)
+                                                <option value="{{$i}}">{{$i}}</option>
                                             @endfor
                                         </select>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    {{-- 
-                    <div class="" v-if="person_types">
-                        <div class="form-group form-guest-search" v-for="(type,index) in person_types">
-                            <div class="guest-wrapper d-flex justify-content-between align-items-center">
+                        <div class="form-group form-guest-search cus-style-pickup-time bg-focus">
+                            <!-- d-flex -->
+                            <div class="guest-wrapper justify-content-between align-items-center">
                                 <div class="flex-grow-1">
-                                    <label>@{{type.name}}</label>
-                                    <div class="render check-in-render">@{{type.desc}}</div>
-                                    <div class="render check-in-render">@{{type.display_price}} {{__("per person")}}</div>
+                                    <label class="cus-label">{{__("Travel Time")}}</label>
                                 </div>
                                 <div class="flex-shrink-0">
                                     <div class="input-number-group">
-                                        <i class="icon ion-ios-remove-circle-outline" @click="minusPersonType(type)"></i>
-                                        <span class="input"><input type="number" v-model="type.number" min="1" @change="changePersonType(type)"/></span>
-                                        <i class="icon ion-ios-add-circle-outline" @click="addPersonType(type)"></i>
+                                        <label class="cus-font">2 {{__("Hrs.")}} 16 {{__("Min")}}</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-group form-guest-search" v-else>
-                        <div class="guest-wrapper d-flex justify-content-between align-items-center">
-                            <div class="flex-grow-1">
-                                <label>{{__("Guests")}}</label>
-                            </div>
-                            <div class="flex-shrink-0">
-                                <div class="input-number-group">
-                                    <i class="icon ion-ios-remove-circle-outline" @click="minusGuestsType()"></i>
-                                    <span class="input"><input type="number" v-model="guests" min="1"/></span>
-                                    <i class="icon ion-ios-add-circle-outline" @click="addGuestsType()"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-section-group form-group" v-if="extra_price.length">
-                        <h4 class="form-section-title">{{__('Extra prices:')}}</h4>
-                        <div class="form-group" v-for="(type,index) in extra_price">
-                            <div class="extra-price-wrap d-flex justify-content-between">
-                                <div class="flex-grow-1">
-                                    <label><input type="checkbox" true-value="1" false-value="0" v-model="type.enable"> @{{type.name}}</label>
-                                    <div class="render" v-if="type.price_type">(@{{type.price_type}})</div>
-                                </div>
-                                <div class="flex-shrink-0">@{{type.price_html}}</div>
-                            </div>
-                        </div>
-                    </div>
-                    --}} 
-
-                    <div class="" v-if="person_types">
-                        <div class="form-group form-guest-search" v-for="(type,index) in person_types" v-if="type.name == 'Adult'">
-                            <div class="guest-wrapper d-flex justify-content-between align-items-center">
-                                <div class="flex-grow-1">
-                                    <label>{{ __('Persons') }}</label>
-                                </div>
-
-
-                                <div class="flex-shrink-0">
-                                    <div class="input-number-group">
-                                        <i class="icon ion-ios-remove-circle-outline" @click="minusPersonType(type)"></i>
-                                        <span class="input"><input type="number" v-model="type.number" min="1" @change="changePersonType(type)"/></span>
-                                        <i class="icon ion-ios-add-circle-outline" @click="addPersonType(type)"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="form-group form-guest-search">
-                        <div class="guest-wrapper d-flex justify-content-between align-items-center">
-                            <div class="row">
-                            <div class="flex-grow-1 cus-style-pickup-date">
-                                <label>{{__("Travel Time")}}</label>
-                            </div>
-                            
-
-                            <div class="flex-shrink-1 cus-style-pickup-time">
-                                <div class="input-number-group">
-
-                                    <input type="number" min="0" class="form-control" readonly>Hrs.
-                                    <input type="number" min="0" class="form-control" readonly>Mins
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    {{-- 
-                    <div class="form-group form-guest-search" v-else>
-                        <div class="guest-wrapper d-flex justify-content-between align-items-center">
-                            <div class="flex-grow-1">
-                                <label>{{__("Guests")}}</label>
-                            </div>
-                            <div class="flex-shrink-0">
-                                <div class="input-number-group">
-                                    <i class="icon ion-ios-remove-circle-outline" @click="minusGuestsType()"></i>
-                                    <span class="input"><input type="number" v-model="guests" min="1"/></span>
-                                    <i class="icon ion-ios-add-circle-outline" @click="addGuestsType()"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    --}}
-
-
-                    {{-- 
-                    <div class="form-section-group form-group-padding" v-if="buyer_fees.length">
-                        <div class="extra-price-wrap d-flex justify-content-between" v-for="(type,index) in buyer_fees">
-                            <div class="flex-grow-1">
-                                <label>@{{type.type_name}}
-                                    <i class="icofont-info-circle" v-if="type.desc" data-toggle="tooltip" data-placement="top" :title="type.type_desc"></i>
-                                </label>
-                                <div class="render" v-if="type.price_type">(@{{type.price_type}})</div>
-                            </div>
-                            <div class="flex-shrink-0">
-                                <div class="unit" v-if='type.unit == "percent"'>
-                                    @{{ type.price }}%
-                                </div>
-                                <div class="unit" v-else >
-                                    @{{ formatMoney(type.price) }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    --}}
                 </div>
 
                 <!-- v-if="total_price > 0" -->
-                <ul class="form-section-total list-unstyled" >
-                    <li>
+                <div class="form-section-total list-unstyled cus-style-total bg-focus" >
+                    
                         <label>{{__("Total")}}</label>
-                        <span class="price">@{{total_price_html}}</span>
-                    </li>
-                    <li v-if="is_deposit_ready">
-                        <label for="">{{__("Pay now")}}</label>
-                        <span class="price">@{{pay_now_price_html}}</span>
-                    </li>
-                </ul>
+                        
+                        <span class="cus-font-price">$0</span>
+                </div>
                 <div v-html="html"></div>
                 <div class="submit-group">
 
-                    <div class="row">
+                    <div class="row" style="margin-right: -20px; margin-left: 0px;">
                         <button type="button" disabled class="btn btn-secondary" data-dismiss="modal" style="width: 45%">{{__('Cancel')}}</button>
                         &nbsp;&nbsp;&nbsp;
                         <a class="btn btn-large" @click="doSubmit($event)" :class="{'disabled':onSubmit,'btn-success':(step == 2),'btn-primary':step == 1}" name="submit" style="width: 45%;">
